@@ -20,6 +20,8 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
@@ -76,7 +78,7 @@ public class Signup_sub extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 	private class MyAsyncTask extends AsyncTask<String, Integer, Double>{
-		String res = "Nothing";
+		String res = "Loading...";
 		@Override
 		protected Double doInBackground(String... params) {
 			// TODO Auto-generated method stub
@@ -86,8 +88,25 @@ public class Signup_sub extends ActionBarActivity {
  
 		protected void onPostExecute(Double result){
 			//textView.setVisibility(View.GONE);
+				try {
+					JSONObject feedback = new JSONObject(res);
+					boolean loginSuccess = feedback.getBoolean("status");
+					
+					if(loginSuccess){
+						
+						
+						textView.setText("Success!");
+						
+					}else{
+						
+						textView.setText("Failed!");
+						
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 
-				textView.setText(res);
 			
 			//Toast.makeText(getApplicationContext(), "command sent", Toast.LENGTH_LONG).show();
 		}
@@ -98,7 +117,7 @@ public class Signup_sub extends ActionBarActivity {
 		public void postData(String... params){
 			// Create a new HttpClient and Post Header
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost("http://104.236.34.81/");
+			HttpPost httppost = new HttpPost("http://104.236.34.81/signup/");
 			/*HttpGet request = new HttpGet();
             try {
 				request.setURI(new URI("http://104.236.34.81/?username=haha&password=123&firstName=123&lastName=34"));

@@ -14,5 +14,6 @@
     <string name="firstname">First Name</string>
     <string name="title_activity_signup">Signup</string>
     <string name="title_activity_signup_sub">Signup_sub</string>
+    <string name="title_activity_assignmetns">Assignmetns</string>
 
 </resources>

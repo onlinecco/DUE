@@ -1,5 +1,25 @@
 package com.cs242.due;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -7,12 +27,13 @@ import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build.VERSION;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
@@ -25,8 +46,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A login screen that offers login via email/password.
@@ -103,7 +122,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 	private void setupActionBar() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			// Show the Up button in the action bar.
-			//getActionBar().setDisplayHomeAsUpEnabled(true);
+			// getActionBar().setDisplayHomeAsUpEnabled(true);
 		}
 	}
 
@@ -140,7 +159,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
 			cancel = true;
-		} else if (!isEmailValid(email)) {
+		} else if (!isUsernameValid(email)) {
 			mEmailView.setError(getString(R.string.error_invalid_email));
 			focusView = mEmailView;
 			cancel = true;
@@ -159,9 +178,10 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 		}
 	}
 
-	private boolean isEmailValid(String email) {
+	private boolean isUsernameValid(String email) {
 		// TODO: Replace this with your own logic
-		return email.contains("@");
+		// return email.contains("@");
+		return true;
 	}
 
 	private boolean isPasswordValid(String password) {
@@ -289,8 +309,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 	private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
 		// Create adapter to tell the AutoCompleteTextView what to show in its
 		// dropdown list.
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-				Login.this,
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(Login.this,
 				android.R.layout.simple_dropdown_item_1line,
 				emailAddressCollection);
 
@@ -305,6 +324,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 
 		private final String mEmail;
 		private final String mPassword;
+		private JSONObject feedback;
 
 		UserLoginTask(String email, String password) {
 			mEmail = email;
@@ -317,20 +337,42 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 
 			try {
 				// Simulate network access.
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost("http://104.236.34.81/login/");
+				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+				nameValuePairs.add(new BasicNameValuePair("username", mEmail));
+				nameValuePairs
+						.add(new BasicNameValuePair("password", mPassword));
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+				// Execute HTTP Post Request
+				HttpResponse response;
+
+				response = httpclient.execute(httppost);
+				// HttpResponse response = httpclient.execute(request);
+				ResponseHandler<String> handler = new BasicResponseHandler();
+				String res = handler.handleResponse(response);
+				feedback = new JSONObject(res);
+
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+				
+				e1.printStackTrace();
+				return false;
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 				return false;
 			}
 
-			for (String credential : DUMMY_CREDENTIALS) {
-				String[] pieces = credential.split(":");
-				if (pieces[0].equals(mEmail)) {
-					// Account exists, return true if the password matches.
-					return pieces[1].equals(mPassword);
-				}
-			}
-
-			// TODO: register the new account here.
 			return true;
 		}
 
@@ -340,7 +382,29 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 			showProgress(false);
 
 			if (success) {
-				finish();
+				try {
+					boolean loginSuccess = feedback.getBoolean("status");
+					
+					if(loginSuccess){
+						
+						
+						Intent intent = new Intent(Login.this, Assignmetns.class);
+						intent.putExtra("bundle", feedback.toString());
+						startActivity(intent);
+						
+						
+					}else{
+						
+						mPasswordView
+						.setError(feedback.getString("error"));
+				mPasswordView.requestFocus();
+						
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
