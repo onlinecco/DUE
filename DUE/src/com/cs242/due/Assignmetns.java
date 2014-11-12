@@ -27,87 +27,81 @@ import android.widget.SimpleExpandableListAdapter;
 import android.widget.Toast;
 
 public class Assignmetns extends ExpandableListActivity {
-	
-	private ExpandableListAdapter mAdapter;
-	ExpandableListView expand;
-	
-	
+
+	private SimpleExpandableListAdapter mAdapter;
+	private ExpandableListView expand;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_assignmetns);
 		Intent intent = getIntent();
 		String message1 = intent.getStringExtra("bundle");
-		expand = (ExpandableListView) this.findViewById(R.id.expandableListView1);
-		mAdapter = (ExpandableListAdapter) expand.getExpandableListAdapter();
+		expand = (ExpandableListView) this.findViewById(android.R.id.list);
 		JSONObject feedback;
-		
+
 		try {
 			feedback = new JSONObject(message1);
 			JSONArray jArray = feedback.getJSONArray("courses");
-	        
-	        List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-	        List<List<Map<String, String>>> childData = new ArrayList<List<Map<String, String>>>();
-	        
-			for (int i=0; i < jArray.length(); i++)
-			{
 
-			        JSONObject oneObject = jArray.getJSONObject(i);
-			        // Pulling items from the array
-			        String oneObjectsItem = oneObject.getString("course");
-			        JSONArray jArray2 = feedback.getJSONArray("assignments");
+			List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
+			List<List<Map<String, String>>> childData = new ArrayList<List<Map<String, String>>>();
 
-			        
-			        Map<String, String> curGroupMap = new HashMap<String, String>();
-			        groupData.add(curGroupMap);
-			        curGroupMap.put("course", oneObjectsItem);
-			            
-			            List<Map<String, String>> children = new ArrayList<Map<String, String>>();
-			            for (int j = 0; j < jArray2.length(); j++) {
-			            	Map<String, String> curChildMap = new HashMap<String, String>();
-			                children.add(curChildMap);
-			            	JSONObject aObject = jArray2.getJSONObject(i);
-			                
-			               // curChildMap.put(NAME, "Child " + j);
-			                curChildMap.put("title", aObject.getString("title"));
-			                curChildMap.put("content", aObject.getString("content"));
-			                curChildMap.put("date", aObject.getString("date"));
-			            }
-			            childData.add(children);
-			        }
-			        
-			        // Set up our adapter
-			        mAdapter = new SimpleExpandableListAdapter(
-			                this,
-			                groupData,
-			                R.layout.groupitem,
-			                new String[] { "course"},
-			                new int[] { R.id.text1 },
-			                childData,
-			                R.layout.children_item,
-			                new String[] { "title","content","date" },
-			                new int[] { R.id.title, R.id.content,R.id.date }
-			                );
-			        setListAdapter(mAdapter);
+			for (int i = 0; i < jArray.length(); i++) {
 
-			        expand.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+				JSONObject oneObject = jArray.getJSONObject(i);
+				// Pulling items from the array
+				String oneObjectsItem = oneObject.getString("course");
+				JSONArray jArray2 = oneObject.getJSONArray("assignments");
 
-			            @Override
-			            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-			                //Nothing here ever fires
-			                System.err.println("child clicked");
-			                Toast.makeText(getApplicationContext(), "child clicked", Toast.LENGTH_SHORT).show();
-			                return true;
-			            }
+				Map<String, String> curGroupMap = new HashMap<String, String>();
+				groupData.add(curGroupMap);
+				curGroupMap.put("course", oneObjectsItem);
 
-			        });
+				List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+				for (int j = 0; j < jArray2.length(); j++) {
+					Map<String, String> curChildMap = new HashMap<String, String>();
+					children.add(curChildMap);
+					JSONObject aObject = jArray2.getJSONObject(j);
 
-			
+					// curChildMap.put(NAME, "Child " + j);
+					curChildMap.put("title", aObject.getString("title"));
+					curChildMap.put("content", aObject.getString("content"));
+					curChildMap.put("date", aObject.getString("date"));
+				}
+				childData.add(children);
+			}
+
+			// Set up our adapter
+			mAdapter = new SimpleExpandableListAdapter(this, groupData,
+					R.layout.groupitem, new String[] { "course" },
+					new int[] { R.id.text1 }, childData,
+					R.layout.children_item, new String[] { "title", "content",
+							"date" }, new int[] { R.id.title, R.id.content,
+							R.id.date });
+			expand.setAdapter(mAdapter);
+
+			expand.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+				@Override
+				public boolean onChildClick(ExpandableListView parent, View v,
+						int groupPosition, int childPosition, long id) {
+					// Nothing here ever fires
+					System.err.println("child clicked");
+					Toast.makeText(getApplicationContext(), "child clicked",
+							Toast.LENGTH_SHORT).show();
+					return true;
+				}
+
+			});
+			mAdapter.notifyDataSetChanged();
+
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
+			System.err.println("hehehe");
 			e.printStackTrace();
 		}
-		((BaseAdapter) mAdapter).notifyDataSetChanged();
+
 	}
 
 	@Override
