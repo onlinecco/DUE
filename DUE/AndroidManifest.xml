@@ -58,6 +58,30 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cs242.due.Login" />
         </activity>
+        <activity
+            android:name=".ViewAssignment"
+            android:label="@string/title_activity_view_assignment"
+            android:parentActivityName=".Assignmetns" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cs242.due.Assignmetns" />
+        </activity>
+        <activity
+            android:name=".AddAssignment"
+            android:label="@string/title_activity_add_assignment"
+            android:parentActivityName=".Assignmetns" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cs242.due.Assignmetns" />
+        </activity>
+        <activity
+            android:name=".AddClass"
+            android:label="@string/title_activity_add_class"
+            android:parentActivityName=".Assignmetns" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cs242.due.Assignmetns" />
+        </activity>
     </application>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->

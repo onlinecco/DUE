@@ -1,7 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.cs242.due.Assignmetns" >
+    tools:context="com.cs242.due.ViewAssignment" >
+
 
     		<item android:id="@+id/action_add_assign"
           android:icon="@drawable/add_assign"

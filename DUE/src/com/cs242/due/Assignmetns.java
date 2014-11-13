@@ -11,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.app.Activity;
 import android.app.ExpandableListActivity;
 import android.content.Intent;
@@ -19,24 +21,31 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class Assignmetns extends ExpandableListActivity {
+public class Assignmetns extends ActionBarActivity {
 
 	private SimpleExpandableListAdapter mAdapter;
 	private ExpandableListView expand;
+	private String _username;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_assignmetns);
+		ActionBar actionBar = getSupportActionBar();
+		actionBar.show();
 		Intent intent = getIntent();
 		String message1 = intent.getStringExtra("bundle");
+		_username = intent.getStringExtra("username");
 		expand = (ExpandableListView) this.findViewById(android.R.id.list);
 		JSONObject feedback;
 
@@ -67,7 +76,7 @@ public class Assignmetns extends ExpandableListActivity {
 					// curChildMap.put(NAME, "Child " + j);
 					curChildMap.put("title", aObject.getString("title"));
 					curChildMap.put("content", aObject.getString("content"));
-					curChildMap.put("date", aObject.getString("date"));
+					curChildMap.put("date", aObject.getString("duedate"));
 				}
 				childData.add(children);
 			}
@@ -86,10 +95,16 @@ public class Assignmetns extends ExpandableListActivity {
 				@Override
 				public boolean onChildClick(ExpandableListView parent, View v,
 						int groupPosition, int childPosition, long id) {
-					// Nothing here ever fires
-					System.err.println("child clicked");
 					Toast.makeText(getApplicationContext(), "child clicked",
 							Toast.LENGTH_SHORT).show();
+					
+					Intent intent = new Intent(getApplicationContext(), ViewAssignment.class);
+					intent.putExtra("title", ((TextView)v.findViewById(R.id.title)).getText().toString());
+					intent.putExtra("content", ((TextView)v.findViewById(R.id.content)).getText().toString());
+					intent.putExtra("date", ((TextView)v.findViewById(R.id.date)).getText().toString());
+					startActivity(intent);
+					
+
 					return true;
 				}
 
@@ -108,7 +123,7 @@ public class Assignmetns extends ExpandableListActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.assignmetns, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -117,7 +132,16 @@ public class Assignmetns extends ExpandableListActivity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
+		if (id == R.id.action_add_class) {
+			Intent intent = new Intent(getApplicationContext(), AddClass.class);
+			intent.putExtra("username", _username);
+			startActivity(intent);
+			return true;
+		}
+		if (id == R.id.action_add_assign) {
+			Intent intent = new Intent(getApplicationContext(), AddAssignment.class);
+			intent.putExtra("username", _username);
+			startActivity(intent);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

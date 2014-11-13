@@ -14,6 +14,16 @@
     <string name="firstname">First Name</string>
     <string name="title_activity_signup">Signup</string>
     <string name="title_activity_signup_sub">Signup_sub</string>
-    <string name="title_activity_assignmetns">Assignmetns</string>
+    <string name="title_activity_assignmetns">Assignments</string>
+    <string name="title_activity_view_assignment">ViewAssignment</string>
+    <string name="action_add_assign">Add Assignment</string>
+        <string name="action_add_class">Add Class</string>
+    <string name="title_activity_add_assignment">AddAssignment</string>
+    <string name="title">Title</string>
+    <string name="submmit">Submmit</string>
+    <string name="content">Content</string>
+    <string name="date">Date</string>
+    <string name="course">Course</string>
+    <string name="title_activity_add_class">AddClass</string>
 
 </resources>

@@ -35,11 +35,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class Signup_sub extends ActionBarActivity {
 	
-	private TextView textView;
+	private ImageView image;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
@@ -48,7 +49,7 @@ public class Signup_sub extends ActionBarActivity {
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.hide();
 
-		textView = (TextView) findViewById(R.id.hello);
+		image = (ImageView) findViewById(R.id.feed);
 		Intent intent = getIntent();
 		String message1 = intent.getStringExtra("username");
 		String message2 = intent.getStringExtra("password");
@@ -94,12 +95,11 @@ public class Signup_sub extends ActionBarActivity {
 					
 					if(loginSuccess){
 						
-						
-						textView.setText("Success!");
+						image.setImageResource(R.drawable.success);
 						
 					}else{
 						
-						textView.setText("Failed!");
+						image.setImageResource(R.drawable.cross);
 						
 					}
 				} catch (JSONException e) {

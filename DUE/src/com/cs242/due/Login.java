@@ -390,7 +390,9 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 						
 						Intent intent = new Intent(Login.this, Assignmetns.class);
 						intent.putExtra("bundle", feedback.toString());
+						intent.putExtra("username", mEmail);
 						startActivity(intent);
+						finish();
 						
 						
 					}else{
