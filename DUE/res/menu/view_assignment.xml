@@ -4,15 +4,6 @@
     tools:context="com.cs242.due.ViewAssignment" >
 
 
-    		<item android:id="@+id/action_add_assign"
-          android:icon="@drawable/add_assign"
-          android:title="@string/action_add_assign" 
-          app:showAsAction="always"
-          />
-    		<item android:id="@+id/action_add_class"
-          android:icon="@drawable/add_class"
-          android:title="@string/action_add_class" 
-          app:showAsAction="always"
-          />
+    		
 
 </menu>

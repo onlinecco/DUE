@@ -1,9 +1,13 @@
 package com.cs242.due;
 
 
+import com.cs242.due.Login.UserLoginTask;
+
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,9 +19,18 @@ public class Main extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+	    SharedPreferences mySharedPreferences = getApplicationContext().getSharedPreferences("USER_PREFS", Activity.MODE_PRIVATE);
+	    String password = mySharedPreferences.getString("PASSWORD", null);
+	    
+	    if(password != null){
+			Intent intent = new Intent(this, Login.class);
+			startActivity(intent);
+			finish();
+	    }
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		ActionBar actionBar = getSupportActionBar();
 		actionBar.hide();
 		View decorView = getWindow().getDecorView();
@@ -57,5 +70,6 @@ public class Main extends ActionBarActivity {
 	public void login(View view){
 		Intent intent = new Intent(this, Login.class);
 		startActivity(intent);
+		finish();
 	}
 }

@@ -3,12 +3,13 @@ package com.cs242.due;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.TextView;
 
-public class ViewAssignment extends Activity {
+public class ViewAssignment extends ActionBarActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

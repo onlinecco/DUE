@@ -10,6 +10,14 @@
     tools:context="com.cs242.due.ViewAssignment" 
     android:background="@drawable/background">
     <TextView
+        android:id="@+id/title"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:padding="3dp"
+        android:layout_height="wrap_content"
+        android:text="@string/title" 
+        />
+    <TextView
         android:id="@+id/asstitle"
         android:textSize="20sp"
         android:layout_width="match_parent"
@@ -20,7 +28,14 @@
         android:text="@string/hello_world" 
         android:drawableLeft="@drawable/title"
         />
-    
+        <TextView
+        android:id="@+id/date"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:padding="3dp"
+        android:layout_height="wrap_content"
+        android:text="@string/duedate" 
+        />
     <TextView
         android:id="@+id/assdate"
         android:textSize="20sp"
@@ -30,7 +45,14 @@
         android:text="@string/hello_world" 
         android:padding="10dp"
         android:background="@drawable/textborder"/>
-
+    <TextView
+        android:id="@+id/content"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:padding="3dp"
+        android:layout_height="wrap_content"
+        android:text="@string/content" 
+        />
 
     <TextView
         android:id="@+id/asscontent"

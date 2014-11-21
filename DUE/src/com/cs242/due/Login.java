@@ -5,7 +5,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
@@ -29,6 +28,7 @@ import android.content.ContentResolver;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -71,10 +71,23 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
+	    SharedPreferences mySharedPreferences = getApplicationContext().getSharedPreferences("USER_PREFS", Activity.MODE_PRIVATE);
+	    String password = mySharedPreferences.getString("PASSWORD", null);
+	    String username = mySharedPreferences.getString("USERNAME", null);
+	    
+	    if(password != null){
+	    	
+			mAuthTask = new UserLoginTask(username, password);
+			mAuthTask.execute((Void) null);
+	    }
 		setContentView(R.layout.activity_login);
 		setupActionBar();
 
+
+	    
+	    
 		// Set up the login form.
 		mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 		populateAutoComplete();
@@ -387,10 +400,16 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 					
 					if(loginSuccess){
 						
-						
+						SharedPreferences mySharedPreferences = 
+					            getApplicationContext().getSharedPreferences("USER_PREFS", Activity.MODE_PRIVATE);
+					    SharedPreferences.Editor editor = mySharedPreferences.edit();
+					    editor.putString("USERNAME", mEmail);
+					    editor.putString("PASSWORD", mPassword);
+					    editor.commit();
 						Intent intent = new Intent(Login.this, Assignmetns.class);
 						intent.putExtra("bundle", feedback.toString());
 						intent.putExtra("username", mEmail);
+						intent.putExtra("password", mPassword);
 						startActivity(intent);
 						finish();
 						

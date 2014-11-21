@@ -18,12 +18,23 @@
     <string name="title_activity_view_assignment">ViewAssignment</string>
     <string name="action_add_assign">Add Assignment</string>
         <string name="action_add_class">Add Class</string>
-    <string name="title_activity_add_assignment">AddAssignment</string>
+                <string name="action_refresh">Refresh</string>
+                                <string name="action_logout">Logout</string>
+    <string name="title_activity_add_assignment">Add Assignment</string>
     <string name="title">Title</string>
     <string name="submmit">Submmit</string>
     <string name="content">Content</string>
     <string name="date">Date</string>
+        <string name="duedate">Due Date:</string>
     <string name="course">Course</string>
+    <string name="time">Time</string>
+        <string name="pick_time">Pick Time</string>
+                <string name="pick_date">Pick Date</string>
     <string name="title_activity_add_class">AddClass</string>
+    <string-array name="course_arrays">
+        
+    </string-array>
+        <string name="course_prompt">Choose a course</string>
+    
 
 </resources>
