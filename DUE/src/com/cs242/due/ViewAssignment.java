@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 public class ViewAssignment extends ActionBarActivity {
 
+	private String aid;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
@@ -20,6 +21,7 @@ public class ViewAssignment extends ActionBarActivity {
 		String title = intent.getStringExtra("title");
 		String content = intent.getStringExtra("content");
 		String date = intent.getStringExtra("date");
+		aid = intent.getStringExtra("aid");
 		((TextView)findViewById(R.id.asstitle)).setText(title);
 		((TextView)findViewById(R.id.asscontent)).setText(content);
 		((TextView)findViewById(R.id.assdate)).setText(date);
@@ -38,6 +40,12 @@ public class ViewAssignment extends ActionBarActivity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
+		if(id == R.id.action_view_asspeers){
+			
+			Intent intent = new Intent(getApplicationContext(), Main.class);
+			intent.putExtra("aid", aid);
+			startActivity(intent);
+		}
 
 		return super.onOptionsItemSelected(item);
 	}

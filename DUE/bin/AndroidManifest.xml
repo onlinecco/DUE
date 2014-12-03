@@ -82,6 +82,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.cs242.due.Assignmetns" />
         </activity>
+        <activity
+            android:name=".ViewPeers"
+            android:label="@string/title_activity_view_peers"
+            android:parentActivityName=".ViewAssignment" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cs242.due.ViewAssignment" />
+        </activity>
     </application>
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->

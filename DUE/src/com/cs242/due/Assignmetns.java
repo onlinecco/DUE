@@ -136,6 +136,7 @@ public class Assignmetns extends ActionBarActivity {
 							.findViewById(R.id.content)).getText().toString());
 					intent.putExtra("date", ((TextView) v
 							.findViewById(R.id.date)).getText().toString());
+					intent.putExtra("aid", (( CheckBox) findViewById(R.id.cbx1)).getTag().toString());
 					startActivity(intent);
 
 					return true;
@@ -266,7 +267,7 @@ public class Assignmetns extends ActionBarActivity {
 						tv.setText(sDate.trim());
 						tv.setTextColor(Color.BLACK);
 						if(savedTime/1000 < 3600*3) tv.setTextColor(Color.RED);
-						if(savedTime/1000 == 3600){
+						if(savedTime/1000 == 3600 || savedTime/1000 == 1800 || savedTime/1000 == 900 || savedTime/1000 == 450 || savedTime/1000 == 60){
 							
 						NotificationCompat.Builder mBuilder =
 						        new NotificationCompat.Builder(getApplicationContext())

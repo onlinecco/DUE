@@ -1,9 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.cs242.due.ViewAssignment" >
 
-
-    		
+    <item
+        android:id="@+id/action_view_asspeers"
+        android:icon="@drawable/add_class"
+        android:title="@string/action_view_asspeers"
+        app:showAsAction="always"/>
 
 </menu>
