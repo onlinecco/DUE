@@ -84,7 +84,7 @@ public class ViewPeers extends ActionBarActivity {
 
 
 		try {
-			JSONArray jArray = feedback.getJSONArray("peers");
+			JSONArray jArray = feedback.getJSONArray("user");
 
 			List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
 
@@ -94,7 +94,6 @@ public class ViewPeers extends ActionBarActivity {
 				// Pulling items from the array
 				String oneObjectsItem = oneObject.getString("name");
 				String twoObjectsItem = oneObject.getString("uid");
-
 				Map<String, String> curGroupMap = new HashMap<String, String>();
 				groupData.add(curGroupMap);
 				curGroupMap.put("name", oneObjectsItem);
@@ -113,13 +112,13 @@ public class ViewPeers extends ActionBarActivity {
 		}
 	}
 
-	public class MySimpleArrayAdapter extends ArrayAdapter<String> {
+	public class MySimpleArrayAdapter extends ArrayAdapter<Map<String, String>> {
 		private final Context context;
 		private final List<Map<String, String>> values;
 
 		public MySimpleArrayAdapter(Context context,
 				List<Map<String, String>> values) {
-			super(context, R.layout.list_item);
+			super(context, R.layout.list_item, values);
 			this.context = context;
 			this.values = values;
 		}
@@ -128,16 +127,17 @@ public class ViewPeers extends ActionBarActivity {
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LayoutInflater inflater = (LayoutInflater) context
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			View rowView = inflater.inflate(R.layout.list_item, parent, false);
+			convertView = inflater.inflate(R.layout.list_item, parent, false);
 
-			TextView textView = (TextView) rowView.findViewById(R.id.text1);
-			Button buttonView = (Button) rowView.findViewById(R.id.duebutton);
-
+			TextView textView = (TextView) convertView.findViewById(R.id.text1);
+			Button buttonView = (Button) convertView.findViewById(R.id.duebutton);
+			System.err.println(values.get(position).get("name"));
+			System.err.println(values.get(position).get("uid"));
 			textView.setText(values.get(position).get("name"));
 			// Change the icon for Windows and iPhone
 			buttonView.setTag(values.get(position).get("uid"));
 
-			return rowView;
+			return convertView;
 		}
 	}
 
@@ -160,7 +160,7 @@ public class ViewPeers extends ActionBarActivity {
 				// Simulate network access.
 				HttpClient httpclient = new DefaultHttpClient();
 				HttpPost httppost = new HttpPost(
-						"http://104.236.34.81/updateAssignment/");
+						"http://104.236.34.81/assignmentUsers/");
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 				nameValuePairs.add(new BasicNameValuePair("aid", aid));
 				nameValuePairs.add(new BasicNameValuePair("username", uid));
@@ -206,6 +206,7 @@ public class ViewPeers extends ActionBarActivity {
 
 					if (loginSuccess) {
 						renderExpandablelist(feedback);
+						System.err.println(feedback.toString());
 						Toast.makeText(getApplicationContext(),
 								"Peers list updated", Toast.LENGTH_SHORT)
 								.show();

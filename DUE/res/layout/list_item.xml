@@ -5,29 +5,26 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-            <Button
-                android:id="@+id/duebutton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/text1"
-                android:layout_alignParentRight="true"
-                android:background="@drawable/rectangle"
-                android:focusable="false"
-                        android:layout_marginRight="10dp"
-                android:onClick="onDueButtonClicked"
-                android:text="DUE!" />
 
-            <TextView
-                android:id="@+id/text1"
-                        android:layout_marginLeft="20dp"
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/duebutton"
-                android:gravity="center_vertical"
-                android:text="TextView"
-                    android:padding="2dip"
-                android:textColor="#000000"
-                android:textSize="20sp" />
-            
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dp"
+        android:gravity="center_vertical"
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textSize="40sp" />
+
+    <Button
+        android:id="@+id/duebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/rectangle"
+        android:focusable="false"
+        android:onClick="onDueButtonClicked"
+        android:text="DUE!" />
+       
 </RelativeLayout>

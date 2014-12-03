@@ -44,7 +44,7 @@ public class ViewAssignment extends ActionBarActivity {
 		int id = item.getItemId();
 		if(id == R.id.action_view_asspeers){
 			
-			Intent intent = new Intent(getApplicationContext(), Main.class);
+			Intent intent = new Intent(getApplicationContext(), ViewPeers.class);
 			intent.putExtra("aid", aid);
 			intent.putExtra("uid", uid);
 			startActivity(intent);
