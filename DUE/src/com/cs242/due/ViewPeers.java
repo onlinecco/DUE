@@ -50,8 +50,9 @@ public class ViewPeers extends ActionBarActivity {
 		setContentView(R.layout.activity_view_peers);
 		Intent intent = getIntent();
 		String aid = intent.getStringExtra("aid");
+		String uid = intent.getStringExtra("uid");
 		expand = (ListView) this.findViewById(R.id.asspeers_listview);
-		GetAssPeersTask mtask = new GetAssPeersTask(aid);
+		GetAssPeersTask mtask = new GetAssPeersTask(aid,uid);
 		mtask.execute((Void) null);
 	}
 
@@ -91,13 +92,13 @@ public class ViewPeers extends ActionBarActivity {
 
 				JSONObject oneObject = jArray.getJSONObject(i);
 				// Pulling items from the array
-				String oneObjectsItem = oneObject.getString("Name");
-				String twoObjectsItem = oneObject.getString("Aid");
+				String oneObjectsItem = oneObject.getString("name");
+				String twoObjectsItem = oneObject.getString("uid");
 
 				Map<String, String> curGroupMap = new HashMap<String, String>();
 				groupData.add(curGroupMap);
-				curGroupMap.put("Name", oneObjectsItem);
-				curGroupMap.put("Aid", twoObjectsItem);
+				curGroupMap.put("name", oneObjectsItem);
+				curGroupMap.put("uid", twoObjectsItem);
 
 			}
 
@@ -132,9 +133,9 @@ public class ViewPeers extends ActionBarActivity {
 			TextView textView = (TextView) rowView.findViewById(R.id.text1);
 			Button buttonView = (Button) rowView.findViewById(R.id.duebutton);
 
-			textView.setText(values.get(position).get("Name"));
+			textView.setText(values.get(position).get("name"));
 			// Change the icon for Windows and iPhone
-			buttonView.setText(values.get(position).get("Aid"));
+			buttonView.setTag(values.get(position).get("uid"));
 
 			return rowView;
 		}
@@ -143,10 +144,12 @@ public class ViewPeers extends ActionBarActivity {
 	public class GetAssPeersTask extends AsyncTask<Void, Void, Boolean> {
 
 		private final String aid;
+		private final String uid;
 		private JSONObject feedback;
 
-		GetAssPeersTask(String aid) {
+		GetAssPeersTask(String aid, String uid) {
 			this.aid = aid;
+			this.uid = uid;
 		}
 
 		@Override
@@ -160,6 +163,7 @@ public class ViewPeers extends ActionBarActivity {
 						"http://104.236.34.81/updateAssignment/");
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 				nameValuePairs.add(new BasicNameValuePair("aid", aid));
+				nameValuePairs.add(new BasicNameValuePair("username", uid));
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 				// Execute HTTP Post Request

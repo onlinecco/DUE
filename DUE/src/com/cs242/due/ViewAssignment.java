@@ -12,6 +12,7 @@ import android.widget.TextView;
 public class ViewAssignment extends ActionBarActivity {
 
 	private String aid;
+	private String uid;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
@@ -22,6 +23,7 @@ public class ViewAssignment extends ActionBarActivity {
 		String content = intent.getStringExtra("content");
 		String date = intent.getStringExtra("date");
 		aid = intent.getStringExtra("aid");
+		uid = intent.getStringExtra("uid");
 		((TextView)findViewById(R.id.asstitle)).setText(title);
 		((TextView)findViewById(R.id.asscontent)).setText(content);
 		((TextView)findViewById(R.id.assdate)).setText(date);
@@ -44,6 +46,7 @@ public class ViewAssignment extends ActionBarActivity {
 			
 			Intent intent = new Intent(getApplicationContext(), Main.class);
 			intent.putExtra("aid", aid);
+			intent.putExtra("uid", uid);
 			startActivity(intent);
 		}
 

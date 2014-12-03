@@ -137,6 +137,7 @@ public class Assignmetns extends ActionBarActivity {
 					intent.putExtra("date", ((TextView) v
 							.findViewById(R.id.date)).getText().toString());
 					intent.putExtra("aid", (( CheckBox) findViewById(R.id.cbx1)).getTag().toString());
+					intent.putExtra("uid", _username);
 					startActivity(intent);
 
 					return true;
