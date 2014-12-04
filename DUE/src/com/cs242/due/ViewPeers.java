@@ -43,14 +43,16 @@ public class ViewPeers extends ActionBarActivity {
 
 	private ListAdapter mAdapter;
 	private ListView expand;
+	private String aid;
+	private String uid;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_view_peers);
 		Intent intent = getIntent();
-		String aid = intent.getStringExtra("aid");
-		String uid = intent.getStringExtra("uid");
+		aid = intent.getStringExtra("aid");
+		uid = intent.getStringExtra("uid");
 		expand = (ListView) this.findViewById(R.id.asspeers_listview);
 		GetAssPeersTask mtask = new GetAssPeersTask(aid,uid);
 		mtask.execute((Void) null);
@@ -77,6 +79,9 @@ public class ViewPeers extends ActionBarActivity {
 
 	public void onDueButtonClicked(View view) {
 		// TODO
+		String tuid = (String)((Button) view).getTag();
+		DUETask haha = new DUETask(aid,uid,tuid);
+		haha.execute((Void) null);
 
 	}
 
@@ -221,6 +226,103 @@ public class ViewPeers extends ActionBarActivity {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+			} else {
+
+				// fresh error
+				Toast.makeText(getApplicationContext(), "Network Error",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+
+	}
+	
+	public class DUETask extends AsyncTask<Void, Void, Boolean> {
+
+		private final String mUsername;
+		private final String mAid;
+		private final String mUid;
+		private JSONObject feedback;
+
+		DUETask(String aid, String username, String uid) {
+			this.mAid = aid;
+			this.mUid = uid;
+			this.mUsername = username;
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			// TODO: attempt authentication against a network service.
+
+			try {
+				// Simulate network access.
+				HttpClient httpclient = new DefaultHttpClient();
+				HttpPost httppost = new HttpPost(
+						"http://104.236.34.81/due/");
+				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+				nameValuePairs.add(new BasicNameValuePair("suname", mUsername));
+				nameValuePairs.add(new BasicNameValuePair("tuid", mUid));
+				nameValuePairs.add(new BasicNameValuePair("aid", mAid));
+				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+				System.err.println(mUsername+mUid +mAid);
+				// Execute HTTP Post Request
+				HttpResponse response;
+
+				response = httpclient.execute(httppost);
+				// HttpResponse response = httpclient.execute(request);
+				ResponseHandler<String> handler = new BasicResponseHandler();
+				String res = handler.handleResponse(response);
+				feedback = new JSONObject(res);
+
+			} catch (UnsupportedEncodingException e1) {
+				// TODO Auto-generated catch block
+
+				e1.printStackTrace();
+				return false;
+			} catch (ClientProtocolException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+
+			return true;
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean success) {
+
+			if (success) {
+				/*
+				try {
+					boolean loginSuccess = feedback.getBoolean("status");
+
+					if (loginSuccess) {
+						System.err.println(feedback.toString());
+						Toast.makeText(getApplicationContext(),
+								"Peers list updated", Toast.LENGTH_SHORT)
+								.show();
+
+					} else {
+						Toast.makeText(getApplicationContext(),
+								feedback.getString("error"), Toast.LENGTH_SHORT)
+								.show();
+
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}*/
+				Toast.makeText(getApplicationContext(), "DUE!",
+						Toast.LENGTH_SHORT).show();
 
 			} else {
 

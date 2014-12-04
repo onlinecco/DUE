@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -19,16 +20,24 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -37,6 +46,7 @@ import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,6 +56,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * A login screen that offers login via email/password.
@@ -68,26 +79,66 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 	private EditText mPasswordView;
 	private View mProgressView;
 	private View mLoginFormView;
+	private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public static final String EXTRA_MESSAGE = "message";
+    public static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+
+    /**
+     * Substitute you own sender ID here. This is the project number you got
+     * from the API Console, as described in "Getting Started."
+     */
+    String SENDER_ID = "629617421125";
+
+    /**
+     * Tag used on log messages.
+     */
+    static final String TAG = "GCMDemo";
+
+    TextView mDisplay;
+    GoogleCloudMessaging gcm;
+    AtomicInteger msgId = new AtomicInteger();
+    SharedPreferences prefs;
+    Context context;
+
+    String regid;
+    String password = null;
+    String username = null;
+    String rid = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
-	    SharedPreferences mySharedPreferences = getApplicationContext().getSharedPreferences("USER_PREFS", Activity.MODE_PRIVATE);
-	    String password = mySharedPreferences.getString("PASSWORD", null);
-	    String username = mySharedPreferences.getString("USERNAME", null);
-	    
-	    if(password != null){
-	    	
-			mAuthTask = new UserLoginTask(username, password);
-			mAuthTask.execute((Void) null);
-	    }
+
 		setContentView(R.layout.activity_login);
 		setupActionBar();
 
+		context = this;
+        // Check device for Play Services APK. If check succeeds, proceed with
+        //  GCM registration.
+        if (checkPlayServices()) {
+            gcm = GoogleCloudMessaging.getInstance(this);
+            regid = getRegistrationId(context);
 
+            if (regid.isEmpty()) {
+                registerInBackground();
+            }
+        } else {
+            Log.i(TAG, "No valid Google Play Services APK found.");
+            finish();
+        }
+		Toast.makeText(getApplicationContext(), regid,
+				Toast.LENGTH_SHORT).show();
+	    SharedPreferences mySharedPreferences = getApplicationContext().getSharedPreferences("USER_PREFS", Activity.MODE_PRIVATE);
+	    password = mySharedPreferences.getString("PASSWORD", null);
+	    username = mySharedPreferences.getString("USERNAME", null);
 	    
-	    
+	    if(password != null){
+	    	
+			mAuthTask = new UserLoginTask(username, password , regid);
+			mAuthTask.execute((Void) null);
+	    }
 		// Set up the login form.
 		mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 		populateAutoComplete();
@@ -186,7 +237,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			showProgress(true);
-			mAuthTask = new UserLoginTask(email, password);
+			mAuthTask = new UserLoginTask(email, password,regid);
 			mAuthTask.execute((Void) null);
 		}
 	}
@@ -337,11 +388,13 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 
 		private final String mEmail;
 		private final String mPassword;
+		private final String mRid;
 		private JSONObject feedback;
 
-		UserLoginTask(String email, String password) {
+		UserLoginTask(String email, String password, String rid) {
 			mEmail = email;
 			mPassword = password;
+			mRid = rid;
 		}
 
 		@Override
@@ -356,6 +409,7 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 				nameValuePairs.add(new BasicNameValuePair("username", mEmail));
 				nameValuePairs
 						.add(new BasicNameValuePair("password", mPassword));
+				nameValuePairs.add(new BasicNameValuePair("reg_id", mRid));
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 				// Execute HTTP Post Request
@@ -439,4 +493,137 @@ public class Login extends Activity implements LoaderCallbacks<Cursor> {
 			showProgress(false);
 		}
 	}
+	
+	/**
+	 * Gets the current registration ID for application on GCM service.
+	 * <p>
+	 * If result is empty, the app needs to register.
+	 *
+	 * @return registration ID, or empty string if there is no existing
+	 *         registration ID.
+	 */
+	private String getRegistrationId(Context context) {
+	    final SharedPreferences prefs = getGCMPreferences(context);
+	    String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+	    if (registrationId.isEmpty()) {
+	        Log.i(TAG, "Registration not found.");
+	        return "";
+	    }
+	    // Check if app was updated; if so, it must clear the registration ID
+	    // since the existing regID is not guaranteed to work with the new
+	    // app version.
+	    int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+	    int currentVersion = getAppVersion(context);
+	    if (registeredVersion != currentVersion) {
+	        Log.i(TAG, "App version changed.");
+	        return "";
+	    }
+	    return registrationId;
+	}
+
+	/**
+	 * @return Application's {@code SharedPreferences}.
+	 */
+	private SharedPreferences getGCMPreferences(Context context) {
+	    // This sample app persists the registration ID in shared preferences, but
+	    // how you store the regID in your app is up to you.
+	    return getSharedPreferences("USER_PREFS",
+	            Context.MODE_PRIVATE);
+	}
+	/**
+	 * @return Application's version code from the {@code PackageManager}.
+	 */
+	private static int getAppVersion(Context context) {
+	    try {
+	        PackageInfo packageInfo = context.getPackageManager()
+	                .getPackageInfo(context.getPackageName(), 0);
+	        return packageInfo.versionCode;
+	    } catch (NameNotFoundException e) {
+	        // should never happen
+	        throw new RuntimeException("Could not get package name: " + e);
+	    }
+	}
+	/**
+	 * Registers the application with GCM servers asynchronously.
+	 * <p>
+	 * Stores the registration ID and app versionCode in the application's
+	 * shared preferences.
+	 */
+	@SuppressWarnings("unchecked")
+	private void registerInBackground() {
+	    new AsyncTask() {
+	    	String msg = "";
+	        @Override
+	        protected Object doInBackground(Object... params) {
+	            try {
+	                if (gcm == null) {
+	                    gcm = GoogleCloudMessaging.getInstance(context);
+	                }
+	                regid = gcm.register(SENDER_ID);
+	                msg +=regid;
+
+	                // You should send the registration ID to your server over HTTP,
+	                // so it can use GCM/HTTP or CCS to send messages to your app.
+	                // The request to your server should be authenticated if your app
+	                // is using accounts.
+
+	                // For this demo: we don't need to send it because the device
+	                // will send upstream messages to a server that echo back the
+	                // message using the 'from' address in the message.
+
+	                // Persist the regID - no need to register again.
+	                storeRegistrationId(context, regid);
+	            } catch (IOException ex) {
+	                msg = "Error :" + ex.getMessage();
+	                // If there is an error, don't just keep trying to register.
+	                // Require the user to click a button again, or perform
+	                // exponential back-off.
+	            }
+	            return msg;
+	        }
+
+	        @Override
+	        protected void onPostExecute(Object msg) {
+				Toast.makeText(getApplicationContext(), (String)msg,Toast.LENGTH_LONG).show();
+	        }
+
+
+	    }.execute(null, null, null);
+
+	}
+	private void storeRegistrationId(Context context, String regId) {
+	    final SharedPreferences prefs = getGCMPreferences(context);
+	    int appVersion = getAppVersion(context);
+	    Log.i(TAG, "Saving regId on app version " + appVersion);
+	    SharedPreferences.Editor editor = prefs.edit();
+	    editor.putString(PROPERTY_REG_ID, regId);
+	    editor.putInt(PROPERTY_APP_VERSION, appVersion);
+	    editor.commit();
+	}
+	/**
+	 * Check the device to make sure it has the Google Play Services APK. If
+	 * it doesn't, display a dialog that allows users to download the APK from
+	 * the Google Play Store or enable it in the device's system settings.
+	 */
+	private boolean checkPlayServices() {
+	    int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+	    if (resultCode != ConnectionResult.SUCCESS) {
+	        if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+	            GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+	                    PLAY_SERVICES_RESOLUTION_REQUEST).show();
+	        } else {
+	        	Toast.makeText(getApplicationContext(), "SDK not supported",
+						Toast.LENGTH_SHORT).show();
+	            finish();
+	        }
+	        return false;
+	    }
+	    return true;
+	}
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	    checkPlayServices();
+	}
+	
 }

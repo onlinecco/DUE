@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -25,12 +26,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -40,6 +48,7 @@ import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,6 +69,7 @@ public class Assignmetns extends ActionBarActivity {
 	private ExpandableListView expand;
 	private String _username;
 	private String _password;
+	private List<String> dueList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +82,11 @@ public class Assignmetns extends ActionBarActivity {
 		String message1 = intent.getStringExtra("bundle");
 		_username = intent.getStringExtra("username");
 		_password = intent.getStringExtra("password");
+		
 		expand = (ExpandableListView) this.findViewById(android.R.id.list);
 
+		dueList = new ArrayList<String>();
+		
 		renderExpandablelist(message1);
 
 	}
@@ -111,9 +124,10 @@ public class Assignmetns extends ActionBarActivity {
 					curChildMap.put("aid", aObject.getInt("aid") + "");
 					curChildMap.put("title", aObject.getString("title"));
 					curChildMap.put("content", aObject.getString("content"));
-					curChildMap.put("date", aObject.getString("duedate"));
+					curChildMap.put("date", aObject.getString("duedate").substring(0, aObject.getString("duedate").indexOf("+")));
 					curChildMap.put("finished",
 							String.valueOf(aObject.getBoolean("finished")));
+					dueList.add(curChildMap.get("date"));
 				}
 				childData.add(childList);
 			}
@@ -151,6 +165,12 @@ public class Assignmetns extends ActionBarActivity {
 			System.err.println("JSON file is corrupted.");
 			e.printStackTrace();
 		}
+		
+		stopService(new Intent(getApplicationContext(), TimerService.class));
+		Intent intent = new Intent(getApplicationContext(), TimerService.class);
+		intent.putExtra("list", dueList.toArray());
+        // Start the service, keeping the device awake while it is launching.
+		getApplication().startService(intent);
 	}
 
 	static class TestViewHolder {
@@ -218,7 +238,6 @@ public class Assignmetns extends ActionBarActivity {
 					cdt = null;
 				}
 				String dateTime = tempChild.get(childPosition).get("date");
-				dateTime = dateTime.substring(0, dateTime.indexOf("+"));
 
 				// final TextView tv = ((TextView) convertView
 				// .findViewById(R.id.timeleft));
@@ -268,36 +287,7 @@ public class Assignmetns extends ActionBarActivity {
 						tv.setText(sDate.trim());
 						tv.setTextColor(Color.BLACK);
 						if(savedTime/1000 < 3600*3) tv.setTextColor(Color.RED);
-						if(savedTime/1000 == 3600 || savedTime/1000 == 1800 || savedTime/1000 == 900 || savedTime/1000 == 450 || savedTime/1000 == 60){
-							
-						NotificationCompat.Builder mBuilder =
-						        new NotificationCompat.Builder(getApplicationContext())
-						        .setSmallIcon(R.drawable.impo)
-						        .setContentTitle("DUE Notification")
-						        .setContentText("You have an assignment is about to due!");
-						// Creates an explicit intent for an Activity in your app
-						Intent resultIntent = new Intent(getApplicationContext(), Main.class);
-
-						// The stack builder object will contain an artificial back stack for the
-						// started Activity.
-						// This ensures that navigating backward from the Activity leads out of
-						// your application to the Home screen.
-						TaskStackBuilder stackBuilder = TaskStackBuilder.create(getApplicationContext());
-						// Adds the back stack for the Intent (but not the Intent itself)
-						stackBuilder.addParentStack(Main.class);
-						// Adds the Intent that starts the Activity to the top of the stack
-						stackBuilder.addNextIntent(resultIntent);
-						PendingIntent resultPendingIntent =
-						        stackBuilder.getPendingIntent(
-						            0,
-						            PendingIntent.FLAG_UPDATE_CURRENT
-						        );
-						mBuilder.setContentIntent(resultPendingIntent);
-						NotificationManager mNotificationManager =
-						    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-						// mId allows you to update the notification later on.
-						mNotificationManager.notify(1555, mBuilder.build());
-						}
+						
 					}
 
 					@Override
@@ -481,6 +471,7 @@ public class Assignmetns extends ActionBarActivity {
 				HttpPost httppost = new HttpPost("http://104.236.34.81/login/");
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 				nameValuePairs.add(new BasicNameValuePair("username", mEmail));
+				nameValuePairs.add(new BasicNameValuePair("reg_id", "0"));
 				nameValuePairs
 						.add(new BasicNameValuePair("password", mPassword));
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
@@ -648,4 +639,5 @@ public class Assignmetns extends ActionBarActivity {
 		}
 
 	}
+
 }
